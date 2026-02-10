@@ -1,0 +1,24 @@
+{
+  "name": "videxa",
+  "version": "1.0.0",
+  "description": "Video upload and  streaming backend",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+  },
+  "author": "Yatharth Yadav",
+  "license": "ISC",
+  "keywords": [
+    "javascript",
+    "backend"
+  ],
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "mongoose": "^9.2.0"
+  }
+}
