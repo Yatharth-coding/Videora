@@ -1,4 +1,6 @@
 import mongoose,{Schema} from "mongoose";
+import bcrypt from "bcrypt" 
+import jwt from "jsonwebtoken"
 
 const userSchema = new Schema({
     username:{
@@ -31,7 +33,7 @@ const userSchema = new Schema({
     },
     watchHistory:[
         {
-            types: Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref:"Video"
         }
     ],
@@ -44,11 +46,11 @@ const userSchema = new Schema({
     }
 },{timestamps:true})
 
-userSchema.pre("save", function(password){  // here we can not use the arrow function as we can not pass the refernce in it or we can say we can not use this keyword in it
+userSchema.pre("save",async function(next){  // here we can not use the arrow function as we can not pass the refernce in it or we can say we can not use this keyword in it
     
     if(!this.isModified("password")) return next();
 
-    this.password = bcrypt.hash(this.password , 10)
+    this.password =await bcrypt.hash(this.password , 10)
     next();
 }) 
 
@@ -56,8 +58,8 @@ userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password , this.password);
 }
 
-userSchema.method.genarteAccessToken = function(){
-    jwt.sign(
+userSchema.methods.genarteAccessToken = function(){
+    return jwt.sign(
         {
             _id:this._id,
             email:this.email,
@@ -72,16 +74,16 @@ userSchema.method.genarteAccessToken = function(){
 }
 
 
-userSchema.method.refreshToken = function(){
+userSchema.methods.generateRefreshToken = function(){
     jwt.sign(
         {
         _id : this._id
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn : REFRESH_TOKEN_EXPIRY
+            expiresIn : process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }
 
-export const User = mongoose.module("User" , userSchema)
+export const User = mongoose.model("User" , userSchema)
