@@ -1,6 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../models/user.models.js"
+import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {ApiResponse} from "../utils/ApiResponse.js"
 
 const registerUser = await asyncHandler(async (req,res)=>{
     // get the user details from the user
@@ -34,6 +36,40 @@ const registerUser = await asyncHandler(async (req,res)=>{
     if(existedUser){
         throw new ApiError(409 , "User with email or username already existed");
     }
+
+    const avatarFilePath = req.files?.avatar[0]?.path ;
+    const coverImagePath = req.files?.coverImage[0]?.path ;
+
+    if(!avatarFilePath){
+        throw new ApiError(400 , "Avatar image recquired")
+    }
+
+    const avatar = await uploadOnCloudinary(avatarFilePath) ; 
+    const coverImage = await uploadOnCloudinary(coverImagePath);
+
+    if(!avatar){
+        throw new ApiError(500 , "Due to server error avatar file lost please upload again");
+    }
+
+    const user = await User.create({
+        fullname , 
+        username : username.toLowerCase() ,
+        email ,
+        avatar : avatar.url ,
+        coverImage : coverImage.url ,
+        password ,
+
+    })
+
+    const createdUser = await User.findById(user._id)
+
+    if(!createdUser){
+        throw new ApiError(500 , "Data not inserted in database please try again")
+    }
+
+    return res.status(201).json(
+        new ApiResponse(200 , createdUser , "User registered Successfully in database")
+    )
 
 
 })
