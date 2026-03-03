@@ -3,7 +3,10 @@ import fs from "fs"
 
 const uploadOnCloudinary = async (localPath) =>{
     try{
-        if(!localPath) return null;
+        if(!localPath) {
+            console.log("file is not been loaded in cloudinary")
+            return null
+        };
 
         // upload file on cloudinary
         const response = await cloudinary.uploader.upload(localPath , {
@@ -15,7 +18,7 @@ const uploadOnCloudinary = async (localPath) =>{
         return response ; 
     }
     catch(error){
-        fs.unlinkSync(localfilePath) // remove the locally saved temporary file as the upload operation got failed
+        await fs.unlinkSync(localPath) // remove the locally saved temporary file as the upload operation got failed
         return null ;
 
     }
@@ -24,7 +27,7 @@ const uploadOnCloudinary = async (localPath) =>{
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_dky: process.env.CLOUDINARY_API_KEY,
+    api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 

@@ -4,7 +4,7 @@ import { User } from "../models/user.models.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 
-const registerUser = await asyncHandler(async (req,res)=>{
+const registerUser =  asyncHandler(async (req,res)=>{
     // get the user details from the user
     // check for validation - non empty
     // check if the user already exist -> no duplication in username and email
@@ -29,7 +29,7 @@ const registerUser = await asyncHandler(async (req,res)=>{
             throw new ApiError(400 , "All fields are required")
     }
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or : [{username} ,{email}]
     })
 
@@ -39,6 +39,10 @@ const registerUser = await asyncHandler(async (req,res)=>{
 
     const avatarFilePath = req.files?.avatar[0]?.path ;
     const coverImagePath = req.files?.coverImage[0]?.path ;
+
+    console.log("📁 Avatar File Path:", avatarFilePath);
+    console.log("📁 Cover Image File Path:", coverImagePath);
+    console.log("📦 req.files:", req.files);
 
     if(!avatarFilePath){
         throw new ApiError(400 , "Avatar image recquired")
